@@ -1,0 +1,12 @@
+{
+  "appenders": {
+    "app": {
+      "type": "dateFile",
+      "filename": "logs/daily.log",
+      "pattern": "-yyyy-MM-dd"
+    }
+  },
+  "categories": {
+    "default": { "appenders": [ "app"], "level": "DEBUG" }
+  }
+}

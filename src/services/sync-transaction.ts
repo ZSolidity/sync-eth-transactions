@@ -1,11 +1,12 @@
 import {BaseService} from './base-service'
-
-export class SyncTransaction extends BaseService {
+export default class SyncTransaction extends BaseService {
   constructor() {
     super("SyncTransaction")
+    this.logInfo("SyncTransaction service is started")
   }
 
-  public sync_transaction() {
-    this.logger.debug("a");
+  public execute() {
+    this.logInfo("excute")
+
   }
 }

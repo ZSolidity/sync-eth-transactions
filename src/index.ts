@@ -1,22 +1,18 @@
 import dotenv from 'dotenv'
+import SyncTransaction from './services/sync-transaction'
 
-import {BaseService} from './services/base-service'
-
-let test = new BaseService("abcd")
-test.logInfo("A")
-test.logError("B")
-test.logDebug("C")
+let sync_transaction = new SyncTransaction()
 
 async function main() {
     try { 
-        console.log("a")
+        sync_transaction.execute()
     } catch (err:any) {
         console.log(err)
     }
     setTimeout(main, 10000);
 }
 
-//main()
+main()
 
 process.on('uncaughtException', error => {
     console.log(error)

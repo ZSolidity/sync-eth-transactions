@@ -1,19 +1,26 @@
-import dotenv from 'dotenv'
-import SyncTransaction from './services/sync-transaction'
+import dotenv from "dotenv"
+import SyncTransactionService from "./services/sync.transaction.service"
+import DatabaseService from "./services/database.service"
 
-let sync_transaction = new SyncTransaction()
+dotenv.config()
 
-async function main() {
-    try { 
-        sync_transaction.execute()
-    } catch (err:any) {
-        console.log(err)
-    }
-    setTimeout(main, 10000);
-}
+let dbService = new DatabaseService()
 
-main()
+dbService.connectToDatabase()
+  .then(()=>{
+    let syncTranService = new SyncTransactionService(dbService)
+    let timeid = setInterval(()=>{
+        syncTranService.execute()
+        .then((res) => {})
+        .catch((error) =>{
+          console.log(error)
+        })
+    }, 10000)
+  })
+  .catch((err:Error) => {
+    console.error("Database connection failed", err)
+  })
 
 process.on('uncaughtException', error => {
-    console.log(error)
+  console.log(error)
 })

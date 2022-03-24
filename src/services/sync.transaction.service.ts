@@ -5,7 +5,7 @@ import Web3Controller from '../controllers/web3.controller'
 import * as Constants from '../global/constants'
 import * as gFunctiongs from '../global/functions'
 
-export default class SyncTransaction extends BaseCommon {
+export default class SyncEthTransaction extends BaseCommon {
   private dbService: DatabaseService
   private web3Controller: Web3Controller
 
@@ -19,33 +19,27 @@ export default class SyncTransaction extends BaseCommon {
   private async syncTransactions(blockNumber: number, lastSyncStatus: any) {
     if (blockNumber === lastSyncStatus.value) {
       if (lastSyncStatus.status === Constants.SYNC_STATUS_COMPLETED) {
-        this.logInfo(`skipped because already completed`)
+        //this.logInfo(`skipped because already completed`)
         return true
       } else {
         this.logInfo(`delete not completed transactions`)
         await this.dbService.deleteEthTransactions(blockNumber)
+        await this.dbService.deleteErc20Transactions(blockNumber)
       }
     }
     
     await this.dbService.updateSyncStatus("LAST_BLOCK_NUMBER", blockNumber, Constants.SYNC_STATUS_PROGRESS)
-    this.logInfo(`>>>>>>>>>>>> udpate sync status, blockNumber=${blockNumber}, value=${Constants.SYNC_STATUS_PROGRESS}`)
-
     try { 
       let trasactionList:any = await this.web3Controller.getEthTransactions(blockNumber)
 
       trasactionList.transactions.forEach(async(transaction: any) => {
-        if (transaction.value == '0' || transaction.to == null) {
-          return
-        }
-        try { 
-          this.logInfo(`add transaction, hash=${transaction.hash}`)
+        if (this.web3Controller.isEthTransaction(transaction)) {
           await this.dbService.addEthTransaction(transaction)
-        } catch (error) {
-          this.logError(`Exception has been occurred while adding eth transactions. Error Message=[${error}], Transaction=[${JSON.stringify(transaction)}]`)
+        } else if (this.web3Controller.isErc20Transaction("usdt", transaction)) {
+          let params = this.web3Controller.getTransferMethodParams("usdt", transaction)
+          await this.dbService.addErc20Transaction(transaction, params)
         }
       })
-
-      this.logInfo(`<<<<<<<<<<< update sync status, blockNumber=${blockNumber}, value=${Constants.SYNC_STATUS_COMPLETED}`)
       await this.dbService.updateSyncStatus("LAST_BLOCK_NUMBER", blockNumber, Constants.SYNC_STATUS_COMPLETED, trasactionList.timestamp)
     } catch (err: any) {
       this.logError(`Exception has been occured on [syncTransactions]. ${err}`)
@@ -61,14 +55,11 @@ export default class SyncTransaction extends BaseCommon {
 
       try { 
         let currentBlockNumber:any = await this.web3Controller.getLastBlockNumber()
-        this.logInfo(`CURRENT BLOCKNUMBER=${currentBlockNumber}`)
         if (lastSyncStatus === null) {
           await this.dbService.addSyncStatus("LAST_BLOCK_NUMBER", currentBlockNumber)
         } else {
           if (lastSyncStatus.value < currentBlockNumber) {
             for(let index=lastSyncStatus.value; index < currentBlockNumber; index++) {
-              this.logInfo(`|||||||||||||||||||||||||||||||||||||||||||||||||`)
-              this.logInfo(`syncTransactions(${index})`)
               if (!await this.syncTransactions(index, lastSyncStatus)) {
                 break
               }
@@ -80,9 +71,5 @@ export default class SyncTransaction extends BaseCommon {
         reject({success: false, message: err})
       }
     })
-    /*
-    this.web3.eth.getBlock(12062475, true).then((res:any) => {
-      this.logInfo(res)
-    })*/
   }
 }

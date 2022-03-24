@@ -3,7 +3,7 @@ import * as dotenv from "dotenv";
 import BaseCommon from "../commons/base.common"
 import * as SyncStatusModal from "../models/sync.status.modal"
 import * as EthTransactionModal from "../models/eth.transaction.modal"
-import * as EthTransactionERC20Modal from "../models/eth.transaction.erc20"
+import * as Erc20TransactionModal from "../models/erc20.transaction.modal"
 import * as Constants from "../global/constants"
 
 export default class DatabaseService extends BaseCommon {
@@ -14,6 +14,7 @@ export default class DatabaseService extends BaseCommon {
   private collections: {
     syncStatus?: mongoDB.Collection<SyncStatusModal.Collection>
     ethTransaction?: mongoDB.Collection<EthTransactionModal.Collection>
+    erc20Transaction?: mongoDB.Collection<Erc20TransactionModal.Collection>
   } = {};
 
   private async applyValidateSchema(db: mongoDB.Db, collectionName: any, jsonSchema: any) {
@@ -37,14 +38,14 @@ export default class DatabaseService extends BaseCommon {
 
     await this.applyValidateSchema(db, SyncStatusModal.COLLECTION_NAME, SyncStatusModal.jsonSchema);
     await this.applyValidateSchema(db, EthTransactionModal.COLLECTION_NAME, EthTransactionModal.jsonSchema);
+    await this.applyValidateSchema(db, Erc20TransactionModal.COLLECTION_NAME, Erc20TransactionModal.jsonSchema);
 
-    const syncStatusCollection = db.collection<SyncStatusModal.Collection>(SyncStatusModal.COLLECTION_NAME);
-    const ethTransactionCollection = db.collection<EthTransactionModal.Collection>(EthTransactionModal.COLLECTION_NAME);
-
-    this.collections.syncStatus = syncStatusCollection;
-    this.collections.ethTransaction = ethTransactionCollection;
+    this.collections.syncStatus = db.collection<SyncStatusModal.Collection>(SyncStatusModal.COLLECTION_NAME);
+    this.collections.ethTransaction = db.collection<EthTransactionModal.Collection>(EthTransactionModal.COLLECTION_NAME);
+    this.collections.erc20Transaction = db.collection<Erc20TransactionModal.Collection>(Erc20TransactionModal.COLLECTION_NAME);
 
     this.collections.ethTransaction.createIndex(EthTransactionModal.jsonIndex)
+    this.collections.erc20Transaction.createIndex(Erc20TransactionModal.jsonIndex)
 
     this.logInfo(`Successfully connected to database: ${db.databaseName}`)
   }
@@ -74,6 +75,21 @@ export default class DatabaseService extends BaseCommon {
       value: value,
       status: Constants.SYNC_STATUS_NONE,
       timestamp: 0
+    })
+  }
+
+  public async deleteErc20Transactions(blockNumber: number) {
+    return await this.getCollections().erc20Transaction?.deleteMany({blockNumber: blockNumber})
+  }
+
+  public async addErc20Transaction(transaction: any, params: any) {
+    return await this.getCollections().erc20Transaction?.insertOne({
+      blockNumber: transaction.blockNumber,
+      hash: transaction.hash,
+      from: transaction.from,
+      to: params.to,
+      value: params.value,
+      contract: params.contract
     })
   }
 

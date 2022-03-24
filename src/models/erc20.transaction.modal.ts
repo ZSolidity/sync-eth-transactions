@@ -1,6 +1,6 @@
 import { ObjectId } from "mongodb";
 
-export const COLLECTION_NAME = "eth_transactions_erc20"
+export const COLLECTION_NAME = "erc20_transactions"
 
 export interface Collection {
     id?: ObjectId;
@@ -9,12 +9,13 @@ export interface Collection {
     from: string;
     to: string;
     value: number;
+    contract: string
 }
 
 export const jsonSchema = {
     $jsonSchema: {
         bsonType: "object",
-        required: ["blockNumber", "hash", "from", "to", "value"],
+        required: ["blockNumber", "hash", "from", "to", "value", "contract"],
         additionalProperties: false,
         properties: {
             _id: {},
@@ -37,6 +38,10 @@ export const jsonSchema = {
             value: {
                 bsonType: "string",
                 description: "'value' is required and is a string",
+            },
+            contract: {
+                bsonType: "string",
+                description: "'contract' is required and is a string",
             },
         },
     },

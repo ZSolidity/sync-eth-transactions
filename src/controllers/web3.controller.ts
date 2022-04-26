@@ -23,6 +23,10 @@ export default class Web3Controller extends BaseCommon {
     }
     this.web3 = new Web3(this.serviceProvider)
     this.transferMethod = "0xa9059cbb"
+
+    /*this.web3.eth.getTransaction("0xd234dae15a4cfa90b8d91a5127359883babd0bfca89cbb919b62cb82885793cd").then((res:any)=>{
+      this.logInfo(res)
+    })*/
   }
 
   public async getLastBlockNumber() {

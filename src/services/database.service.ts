@@ -1,4 +1,4 @@
-import * as mongoDB from "mongoDB";
+import * as mongoDB from "mongodb";
 import * as dotenv from "dotenv";
 import BaseCommon from "../commons/base.common"
 import * as SyncStatusModal from "../models/sync.status.modal"

@@ -6,6 +6,7 @@ db.createUser({user:"koube_test",pwd:"koube_test",roles:[{role:'readWrite',db:'k
 
 - Remote access
 mongo 127.0.0.1:27017/koube-nft -u koube_test -p koube_test
+mongosh "mongodb://koube_test:koube_test@13.114.204.203:27017/koube-nft"
 
 - mongod.conf 
 /etc/mongod.conf (ubuntu)

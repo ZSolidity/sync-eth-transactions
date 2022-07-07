@@ -85,11 +85,11 @@ export default class DatabaseService extends BaseCommon {
   public async addErc20Transaction(transaction: any, params: any) {
     return await this.getCollections().erc20Transaction?.insertOne({
       blockNumber: transaction.blockNumber,
-      hash: transaction.hash,
-      from: transaction.from,
-      to: params.to,
+      hash: transaction.hash.toLowerCase(),
+      from: transaction.from.toLowerCase(),
+      to: params.to.toLowerCase(),
       value: params.value,
-      contract: params.contract
+      contract: params.contract.toLowerCase()
     })
   }
 
@@ -100,9 +100,9 @@ export default class DatabaseService extends BaseCommon {
   public async addEthTransaction(transaction: any) {
     return await this.getCollections().ethTransaction?.insertOne({
       blockNumber: transaction.blockNumber,
-      hash: transaction.hash,
-      from: transaction.from,
-      to: transaction.to,
+      hash: transaction.hash.toLowerCase(),
+      from: transaction.from.toLowerCase(),
+      to: transaction.to.toLowerCase(),
       value: transaction.value
     })
   }

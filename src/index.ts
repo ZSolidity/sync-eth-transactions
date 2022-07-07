@@ -15,12 +15,6 @@ dbService.connectToDatabase()
         .catch((error) =>{
           console.log(error)
         })
-
-        //await syncErc20TranService.execute()
-        //.then((res) => {})
-        //.catch((error) =>{
-        //  console.log(error)
-        //})
     }, 10000)
   })
   .catch((err:Error) => {

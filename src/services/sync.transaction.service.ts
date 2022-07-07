@@ -56,6 +56,7 @@ export default class SyncEthTransaction extends BaseCommon {
       try { 
         let currentBlockNumber:any = await this.web3Controller.getLastBlockNumber()
         if (lastSyncStatus === null) {
+          await this.dbService.addSyncStatus("FIRST_BLOCK_NUMBER", currentBlockNumber)
           await this.dbService.addSyncStatus("LAST_BLOCK_NUMBER", currentBlockNumber)
         } else {
           if (lastSyncStatus.value < currentBlockNumber) {
